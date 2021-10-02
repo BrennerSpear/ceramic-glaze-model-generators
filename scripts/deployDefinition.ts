@@ -7,17 +7,16 @@ const schemas: Record<string, string> = modelAliases.schemas;
 const [file] = process.argv.slice(2);
 
 async function main() {
-    const { alias, definitionName, description, schemaName } = await getDefinitionInfo(file);
+    const { alias, definitionName, description, schemaAlias } = await getDefinitionInfo(file);
     const manager = await getCeramicManager();
 
-    const schemaID = schemas[schemaName];
+    const schemaID = schemas[schemaAlias];
     const definitionData = definitionDataGenerator(definitionName, description, schemaID);
     const definition = await manager.createDefinition(alias, definitionData);
 
     const model = await manager.toPublished();
     console.log('model:', model);
     await fs.writeFile(`./model.json`, JSON.stringify(model));
-
     console.log('model writen');
 }
 

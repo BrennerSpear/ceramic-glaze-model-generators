@@ -40,10 +40,10 @@ export const definitionDataGenerator = (
         schema: schemaID,
     };
 };
-export const getSchemalInfo = async (file: string): Promise<{ schemaName: string; schema: any }> =>
-    await import(`../schemas/${file}`);
+export const getSchemalInfo = async (file: string): Promise<{ schemaAlias: string; schema: any }> =>
+    await import(`../schemas/${file}.ts`);
 
 export const getDefinitionInfo = async (
     file: string,
-): Promise<{ alias: string; definitionName: string; description: string; schemaName: string }> =>
-    await import(`../definitions/${file}`);
+): Promise<{ alias: string; definitionName: string; description: string; schemaAlias: string }> =>
+    await import(`../definitions/${file}.ts`);
