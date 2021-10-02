@@ -1,44 +1,49 @@
-import { createHmac } from 'crypto';
-import type { NextApiRequest } from 'next';
-import * as ethers from 'ethers';
-import fetch from 'node-fetch-retry';
-import Redis from 'ioredis';
+import dotenv from 'dotenv';
+import { CeramicClient } from '@ceramicnetwork/http-client';
+import { ModelManager } from '@glazed/devtools';
+import { DID } from 'dids';
+import { Ed25519Provider } from 'key-did-provider-ed25519';
+import { getResolver } from 'key-did-resolver';
+import { fromString } from 'uint8arrays';
+import { CERAMIC_NODE_URL } from './constants';
 
-const fetchOptions = {
-    retry: 12,
-    pause: 1000,
-    callback: (retry: any) => {
-        console.log(`Etherscan API Error. Retrying: ${retry}`);
-    },
+dotenv.config();
+
+export const getCeramicManager = async () => {
+    // The key must be provided as an environment variable
+    const key = fromString(process.env.DID_KEY || '', 'base16');
+    // Create and authenticate the DID
+    const did = new DID({
+        provider: new Ed25519Provider(key),
+        resolver: getResolver(),
+    });
+    await did.authenticate();
+
+    // Connect to the local Ceramic node
+    const ceramic = new CeramicClient(CERAMIC_NODE_URL);
+    ceramic.did = did;
+
+    // Create a manager for the model
+    const manager = new ModelManager(ceramic);
+
+    return manager;
 };
 
-export const fetcher = (url: string) => fetch(url, fetchOptions).then((r: any) => r.json());
-
-export const isValidAlchemySignature = (request: NextApiRequest) => {
-    const token = process.env.ALCHEMY_AUTH_TOKEN;
-    const headers = request.headers;
-    const signature = headers['x-alchemy-signature'];
-    const body = request.body;
-    const hmac = createHmac('sha256', token); // Create a HMAC SHA256 hash using the auth token
-    hmac.update(JSON.stringify(body), 'utf8'); // Update the token hash with the request body using utf8
-    const digest = hmac.digest('hex');
-    return signature === digest;
+export const definitionDataGenerator = (
+    definitionName: string,
+    description: string,
+    schemaID: any,
+) => {
+    return {
+        name: definitionName,
+        description,
+        schema: schemaID,
+    };
 };
+export const getSchemalInfo = async (file: string): Promise<{ schemaName: string; schema: any }> =>
+    await import(`../schemas/${file}`);
 
-export const signMessage = (message: string) => {
-    const privateKey = process.env.PRIVATE_KEY;
-    const signingKey = new ethers.Wallet(privateKey)._signingKey();
-    const digest = ethers.utils.id(message);
-    const signature = signingKey.signDigest(digest);
-    const joinedSignature = ethers.utils.joinSignature(signature);
-    return joinedSignature;
-};
-
-export const checkSignature = (message: string, joinedSignature: string, walletAddress: string) => {
-    const digest = ethers.utils.id(message);
-    const signature = ethers.utils.splitSignature(joinedSignature);
-    const recoveredAddress = ethers.utils.recoverAddress(digest, signature);
-    return walletAddress === recoveredAddress;
-};
-
-export const ioredisClient = new Redis(process.env.REDIS_URL);
+export const getDefinitionInfo = async (
+    file: string,
+): Promise<{ alias: string; definitionName: string; description: string; schemaName: string }> =>
+    await import(`../definitions/${file}`);
