@@ -1,7 +1,1 @@
-{
-    "definitions": { "myNote": "kjzl6cwe1jw147yr89lpvd74mjpkbcwn08azcuy9bouwkjs9xwx7kmgqqoxyjca" },
-    "schemas": {
-        "DifficultNote": "ceramic://k3y52l7qbv1fryq7cthldd5wqazljo8wjggsh7x6qswkwtbapz1y6r96c8le7ifi8"
-    },
-    "tiles": {}
-}
+{"definitions":{"myNote":"kjzl6cwe1jw145cli8tooksgx866l7c1dcb4k4zr82ln9ia5i8spvwxc30gioaz"},"schemas":{"DifficultNote":"ceramic://k3y52l7qbv1fry35gy389kvn8ir7e2hdu77vzxqbbbwjbxj21ekemt2bnh9q8jthc","SimpleNote":"ceramic://k3y52l7qbv1frxsazaxh5tebb7r3xbndyjwf4628x07kd6imus8kpip7x1qvlhtz4"},"tiles":{}}

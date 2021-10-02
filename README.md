@@ -1,23 +1,23 @@
 # Ceramic / Glaze Model Generation Scripts
 
 ## Set up
+### Init
 
 ```bash
 yarn install
+yarn run init
 ```
 
-If you already have a DID Key, you can create a `.env` file and put it in there
+`init` does two things:
+1. generate a `DID_KEY` and write it to `.env`
+2. copy `emptyModel.json` to `model.json`
 
-```bash
-touch .env
-```
+Both `.env` and `model.json` are `.gitignore`'d. `model.json` is where your published models will be recorded.
 
-If you don't already have one this will generate one for you and write it to `.env`):
+If you have a specific `DID_KEY` you want to use, you can edit the `.env` file
+<br><br>
 
-```bash
-yarn run generateKey
-```
-
+### Running a local Ceramic node
 To run a local Ceramic node to deploy your data models, in a new terminal window, run:
 
 ```bash
@@ -31,13 +31,14 @@ For full instructions / troubleshooting. please refer to the [official documenta
 The deploy stcripts are by default pointed to your local node (`http://localhost:7007`)
 
 If you'd like to deploy to a different network you can change `CERAMIC_NODE_URL` in `constants.ts`.
+<br><br>
 
 ## Models
 
 Glaze uses IDX data models. To learn more about these models, check out the protocol design [here](https://developers.ceramic.network/tools/idx/overview/#protocol-design).
 
 Schemas & Defininitions are defined in typescript files and deployed using deploy scripts.
-
+<br><br>
 ## Schema Generation
 
 Schemas are saved in the `schemas/` folder
@@ -45,7 +46,7 @@ Schemas are saved in the `schemas/` folder
 As an example you'll find `SimpleNote.ts` in the folder already.
 
 ```typescript
-export const schemaAlias = 'SimpleNote';
+export const alias = 'SimpleNote';
 export const schema = {
     $schema: 'http://json-schema.org/draft-07/schema#',
     title: 'SimpleNote',
@@ -65,7 +66,7 @@ To deploy this Schema to the network and write it to `model.json`, you run:
 ```bash
 yarn run deploySchema SimpleNote
 ```
-
+<br><br>
 ## Definition Generation
 
 Definitions are saved in the `definitions/` folder
@@ -76,7 +77,7 @@ As an example you'll find `MyNote.ts` in the folder already.
 export const alias = 'myNote';
 export const definitionName = 'a note';
 export const description = 'A simple text note';
-export { schemaAlias } from '../schemas/SimpleNote';
+export { alias as schemaAlias } from '../schemas/SimpleNote';
 ```
 
 To deploy this Definition to the network and write it to `model.json`, you run:
@@ -86,7 +87,7 @@ yarn run deployDefinition MyNote
 ```
 
 It will use the `SimpleNote` Schema in the `model.json` file.
-
+<br><br>
 ## Future use cases / development
 
 A `yarn run deployAll` script will probably useful.

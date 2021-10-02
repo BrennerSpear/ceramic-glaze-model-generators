@@ -1,21 +1,29 @@
 import { writeFileSync } from 'fs';
-import { getCeramicManager, getSchemalInfo } from '../utils/utils';
+import deepExtend from 'deep-extend';
+import { preventOverwrite, getCeramicManager, getSchemalInfo } from '../utils/utils';
+import model from '../model.json';
 
-const [filePath] = process.argv.slice(2);
+const [file, overwrite] = process.argv.slice(2);
 
 async function main() {
-    const { schemaAlias, schema } = await getSchemalInfo(filePath);
+    const { alias, schema } = await getSchemalInfo(file);
+
+    // prevents from overwriting models already in model.js by accident
+    if (preventOverwrite(model, 'schemas', alias, overwrite)) {
+        return;
+    }
+
     const manager = await getCeramicManager();
 
-    const schemaID = await manager.createSchema(schemaAlias, schema);
+    const schemaURL = await manager.createSchema(alias, schema);
 
-    console.log('schemaID created:', schemaID);
+    console.log('schemaURL created:', schemaURL);
 
-    const model = await manager.toPublished();
-    console.log('model:', model);
+    const newModel = await manager.toPublished();
+    deepExtend(model, newModel);
+
     writeFileSync(`./model.json`, JSON.stringify(model));
-
-    console.log('model writen');
+    console.log('model generated:', model);
 }
 
 main()
